@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <!-- 移动端适配 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <!-- 微信环境优化 -->
+    <meta name="referrer" content="never">
+    <title>企业视频库</title>
+    <style>
+        /* 基础样式重置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f5f5f5;
+        }
+
+        /* 标题样式 */
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* 视频网格布局 */
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            padding: 15px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* 单个视频卡片 */
+        .video-card {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+
+        .video-card:hover {
+            transform: translateY(-3px);
+        }
+
+        /* 视频封面图 */
+        .video-thumb {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-bottom: 1px solid #eee;
+        }
+
+        /* 视频标题 */
+        .video-title {
+            padding: 12px;
+            font-size: 14px;
+            color: #333;
+            line-height: 1.4;
+            text-align: center;
+        }
+
+        /* 移动端优化 */
+        @media (max-width: 480px) {
+            .video-grid {
+                grid-template-columns: 1fr;
+                padding: 10px;
+            }
+            
+            .video-thumb {
+                height: 160px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>产品视频库</h1>
+        <p style="color:#666;margin-top:8px;">点击封面立即观看</p>
+    </div>
+
+    <div class="video-grid">
+        <!-- 视频项1 -->
+        <div class="video-card" onclick="playVideo('BV1BxA8eEEdY')">
+            <img 
+                src="https://i1.hdslb.com/bfs/archive/2e8276a45632aea788be57129416ae498f1932d3.jpg@308w_174h" 
+                class="video-thumb"
+                alt="智能投影仪演示"
+            >
+            <div class="video-title">智能投影仪演示</div>
+        </div>
+
+        <!-- 视频项2 -->
+        <div class="video-card" onclick="playVideo('BV1yy522y8yy')">
+            <img 
+                src="https://i0.hdslb.com/bfs/archive/封面图2.jpg" 
+                class="video-thumb"
+                alt="VR影院系统"
+            >
+            <div class="video-title">VR影院系统</div>
+        </div>
+
+        <!-- 更多视频项... -->
+    </div>
+
+    <script>
+        // 播放器控制函数
+        function playVideo(bvid) {
+            const isWeChat = /MicroMessenger/i.test(navigator.userAgent);
+            const baseUrl = 'https://player.bilibili.com/player.html';
+            
+            // 构造播放地址
+            const params = new URLSearchParams({
+                bvid: bvid,
+                autoplay: 1,      // 自动播放
+                page: 1,         // 分P播放
+                high_quality: 1   // 最高画质
+            });
+
+            const playerUrl = `${baseUrl}?${params}`;
+
+            if (isWeChat) {
+                // 微信环境使用全屏跳转
+                window.location.href = `https://b23.tv/${bvid}?from=wechat`;
+            } else {
+                // 其他浏览器直接打开播放器
+                const popup = window.open('', '_blank');
+                popup.location.href = playerUrl;
+            }
+        }
+
+        // 图片加载失败处理
+        document.querySelectorAll('.video-thumb').forEach(img => {
+            img.onerror = function() {
+                this.src = 'https://placehold.co/600x400?text=封面加载失败';
+            }
+        });
+    </script>
+</body>
+</html>
