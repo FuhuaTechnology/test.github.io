@@ -1,9 +1,14 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <!-- 原有meta标签保持不变 -->
+    <meta charset="UTF-8">
+    <!-- 移动端适配 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <!-- 微信环境优化 -->
+    <meta name="referrer" content="never">
+    <title>热门产品视频库</title>
     <style>
+        /* 基础样式重置 */
         * {
             margin: 0;
             padding: 0;
@@ -12,135 +17,67 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: #f8f9fa;
+            background: #f5f5f5;
         }
 
-        /* 增强标题样式 */
+        /* 标题样式 */
         .header {
-            padding: 1.2rem 1rem;
-            background: linear-gradient(135deg, #2c3e50, #3498db);
-            color: white;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            margin-bottom: 1rem;
+            text-align: center;
+            padding: 20px 0;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
-        .header h1 {
-            font-size: 1.8rem;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-
-        .header p {
-            font-size: 0.9rem;
-            opacity: 0.9;
-            margin-top: 0.6rem;
-        }
-
-        /* 优化视频网格 */
+        /* 视频网格布局 */
         .video-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1rem;
-            padding: 0 1rem 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            padding: 15px;
             max-width: 1200px;
             margin: 0 auto;
         }
 
-        /* 卡片设计更新 */
+        /* 单个视频卡片 */
         .video-card {
-            background: white;
-            border-radius: 16px;
+            background: #fff;
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
-            transition: all 0.25s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
             cursor: pointer;
-            position: relative;
-            border: 1px solid rgba(0,0,0,0.05);
         }
 
-        .video-card:active {
-            transform: scale(0.98);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        .video-card:hover {
+            transform: translateY(-3px);
         }
 
-        /* 封面图片优化 */
+        /* 视频封面图 */
         .video-thumb {
             width: 100%;
-            height: 160px;
+            height: 180px;
             object-fit: cover;
             border-bottom: 1px solid #eee;
-            transition: transform 0.3s ease;
         }
 
-        .video-card:hover .video-thumb {
-            transform: scale(1.03);
-        }
-
-        /* 标题样式增强 */
+        /* 视频标题 */
         .video-title {
-            padding: 1rem;
-            font-size: 1rem;
+            padding: 12px;
+            font-size: 14px;
             color: #333;
             line-height: 1.4;
             text-align: center;
-            font-weight: 500;
-            background: rgba(255,255,255,0.9);
-            position: relative;
-        }
-
-        /* 添加hover效果指示 */
-        .video-title::after {
-            content: '▶ 立即观看';
-            display: block;
-            font-size: 0.85rem;
-            color: #3498db;
-            margin-top: 0.6rem;
-            opacity: 0;
-            transition: opacity 0.2s ease;
-        }
-
-        .video-card:hover .video-title::after {
-            opacity: 1;
         }
 
         /* 移动端优化 */
-        @media (max-width: 768px) {
-            .header {
-                padding: 1rem;
-            }
-
-            .header h1 {
-                font-size: 1.5rem;
-            }
-
+        @media (max-width: 480px) {
             .video-grid {
                 grid-template-columns: 1fr;
-                padding: 0 0.8rem;
-                gap: 0.8rem;
-            }
-
-            .video-thumb {
-                height: 160px;
-            }
-
-            .video-title {
-                font-size: 0.95rem;
-                padding: 0.8rem;
-            }
-
-            .video-title::after {
-                font-size: 0.8rem;
-                margin-top: 0.4rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .video-thumb {
-                height: 150px;
+                padding: 10px;
             }
             
-            .video-title {
-                font-size: 0.9rem;
+            .video-thumb {
+                height: 160px;
             }
         }
     </style>
@@ -194,14 +131,37 @@
     </div>
 
     <script>
+        // 播放器控制函数
         function playVideo(bvid) {
-            // 添加点击反馈
-            const card = event.currentTarget;
-            card.style.transform = 'scale(0.95)';
-            setTimeout(() => card.style.transform = '', 200);
+            const isWeChat = /MicroMessenger/i.test(navigator.userAgent);
+            const baseUrl = 'https://player.bilibili.com/player.html';
+            
+            // 构造播放地址
+            const params = new URLSearchParams({
+                bvid: bvid,
+                autoplay: 1,      // 自动播放
+                page: 1,         // 分P播放
+                high_quality: 1   // 最高画质
+            });
 
-            // 保持原有播放逻辑...
+            const playerUrl = `${baseUrl}?${params}`;
+
+            if (isWeChat) {
+                // 微信环境使用全屏跳转
+                window.location.href = `https://b23.tv/${bvid}?from=wechat`;
+            } else {
+                // 其他浏览器直接打开播放器
+                const popup = window.open('', '_blank');
+                popup.location.href = playerUrl;
+            }
         }
+
+        // 图片加载失败处理
+        document.querySelectorAll('.video-thumb').forEach(img => {
+            img.onerror = function() {
+                this.src = 'https://placehold.co/600x400?text=封面加载失败';
+            }
+        });
     </script>
 </body>
 </html>
