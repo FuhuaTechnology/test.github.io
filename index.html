@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>多视频交互播放系统</title>
+    <meta name="referrer" content="no-referrer">
+    <title>多视频点播系统</title>
     <style>
-        /* 全局基础样式 */
         * {
             margin: 0;
             padding: 0;
@@ -14,26 +14,31 @@
         }
 
         body {
-            background: #f5f5f5;
+            background: #1a1a1a;
+            color: white;
         }
 
-        /* 视频列表容器 */
+        /* 视频网格布局 */
         .video-gallery {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 15px;
-            padding: 15px;
+            gap: 20px;
+            padding: 20px;
             max-width: 1200px;
             margin: 0 auto;
         }
 
-        /* 视频卡片样式 */
+        /* 视频卡片容器 */
         .video-card {
-            background: #fff;
+            background: #2a2a2a;
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
-            transition: transform 0.2s;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            transition: transform 0.3s;
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px);
         }
 
         /* 视频容器 */
@@ -42,7 +47,6 @@
             padding-top: 56.25%; /* 16:9 比例 */
         }
 
-        /* 视频元素 */
         video {
             position: absolute;
             top: 0;
@@ -50,25 +54,52 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            background: #000;
+        }
+
+        /* 播放覆盖按钮 */
+        .play-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: rgba(0,0,0,0.7);
+            border-radius: 50%;
+            cursor: pointer;
+            opacity: 1;
+            transition: all 0.3s;
+            z-index: 2;
+        }
+
+        .play-overlay::before {
+            content: '';
+            position: absolute;
+            left: 52%;
+            top: 50%;
+            transform: translate(-40%, -50%);
+            border-style: solid;
+            border-width: 15px 0 15px 25px;
+            border-color: transparent transparent transparent #fff;
         }
 
         /* 控制条样式 */
         .controls {
-            padding: 12px;
-            background: rgba(0,0,0,0.8);
-            display: flex;
-            align-items: center;
-            gap: 10px;
             position: absolute;
             bottom: 0;
             width: 100%;
-            transform: translateY(100%);
-            transition: transform 0.3s;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.3s;
         }
 
-        .video-card:hover .controls {
-            transform: translateY(0);
+        .video-container:hover .controls {
+            opacity: 1;
         }
 
         /* 控制按钮 */
@@ -78,7 +109,6 @@
             border: none;
             background: transparent;
             cursor: pointer;
-            padding: 6px;
         }
 
         .control-btn img {
@@ -87,26 +117,43 @@
             filter: invert(1);
         }
 
-        /* 视频标题 */
-        .video-title {
-            padding: 12px;
+        /* 进度条 */
+        .progress-bar {
+            flex-grow: 1;
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 2px;
+            position: relative;
+        }
+
+        .progress-filled {
+            height: 100%;
+            background: #00a8ff;
+            border-radius: 2px;
+            width: 0;
+            transition: width 0.1s;
+        }
+
+        /* 时间显示 */
+        .time-display {
             font-size: 14px;
-            color: #333;
-            font-weight: 500;
-            text-align: center;
+            color: #ddd;
+            min-width: 100px;
+            text-align: right;
         }
 
         /* 移动端优化 */
         @media (max-width: 768px) {
             .video-gallery {
                 grid-template-columns: 1fr;
+                padding: 10px;
             }
-            
+
             .controls {
-                transform: translateY(0);
-                background: rgba(0,0,0,0.7);
+                opacity: 1;
+                padding: 8px;
             }
-            
+
             .control-btn {
                 width: 32px;
                 height: 32px;
@@ -116,9 +163,10 @@
 </head>
 <body>
     <div class="video-gallery">
-        <!-- 视频项模板 -->
+        <!-- 视频项1 -->
         <div class="video-card">
             <div class="video-container">
+                <div class="play-overlay"></div>
                 <video preload="metadata" poster="https://i1.hdslb.com/bfs/archive/2e8276a45632aea788be57129416ae498f1932d3.jpg@308w_174h">
                     <source src="https://www.bilibili.com/video/BV1BxA8eEEdY/" type="video/mp4">
                 </video>
@@ -126,61 +174,70 @@
                     <button class="control-btn play-pause">
                         <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB5UlEQVR4nO2ZUU7DMAyG/3ZxAS7AKXoB4AIcgRNwBE7ACbgAR+ACbEhrp7VJmqRJ5f4nUaR1bfL5t5M4LgAAAAAAAAAAAAAAAADQjFQvLkktL0k9b5J6eUvq5Yf0e0nqZQ3t6PvV8pXUy7d3gL9JvXwGd/Sd1Mubd4C/pN+3V4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49/4B7jZgVUZzQlsAAAAASUVORK5CYII=">
                     </button>
-                    <input type="range" class="progress" value="0" min="0" max="100" step="0.1">
-                    <span class="time">0:00 / 0:00</span>
+                    <div class="progress-bar">
+                        <div class="progress-filled"></div>
+                    </div>
+                    <div class="time-display">0:00 / 0:00</div>
                 </div>
             </div>
-            <div class="video-title">产品演示视频1</div>
         </div>
 
         <!-- 更多视频项... -->
     </div>
 
     <script>
-        // 播放器控制器
         class VideoController {
             constructor(videoElement) {
                 this.video = videoElement;
-                this.playPauseBtn = videoElement.closest('.video-card').querySelector('.play-pause');
-                this.progress = videoElement.closest('.video-card').querySelector('.progress');
-                this.timeDisplay = videoElement.closest('.video-card').querySelector('.time');
-                
+                this.container = videoElement.closest('.video-container');
+                this.playOverlay = this.container.querySelector('.play-overlay');
+                this.playBtn = this.container.querySelector('.play-pause');
+                this.progressFilled = this.container.querySelector('.progress-filled');
+                this.timeDisplay = this.container.querySelector('.time-display');
+
                 this.init();
             }
 
             init() {
-                // 绑定事件
-                this.playPauseBtn.addEventListener('click', () => this.togglePlay());
-                this.video.addEventListener('timeupdate', () => this.updateProgress());
+                // 事件绑定
+                this.playOverlay.addEventListener('click', () => this.togglePlay());
+                this.playBtn.addEventListener('click', () => this.togglePlay());
                 this.video.addEventListener('click', () => this.togglePlay());
-                this.progress.addEventListener('input', (e) => this.seekTo(e.target.value));
+                this.video.addEventListener('timeupdate', () => this.updateProgress());
+                this.video.addEventListener('play', () => this.updatePlayState());
+                this.video.addEventListener('pause', () => this.updatePlayState());
                 
-                // 初始化进度条
+                // 进度条控制
+                const progressBar = this.container.querySelector('.progress-bar');
+                progressBar.addEventListener('click', (e) => {
+                    const rect = progressBar.getBoundingClientRect();
+                    const pos = (e.clientX - rect.left) / rect.width;
+                    this.video.currentTime = pos * this.video.duration;
+                });
+
+                // 初始化时间显示
                 this.video.addEventListener('loadedmetadata', () => {
-                    this.progress.max = this.video.duration;
+                    this.timeDisplay.textContent = 
+                        `0:00 / ${this.formatTime(this.video.duration)}`;
                 });
             }
 
             togglePlay() {
                 this.video.paused ? this.video.play() : this.video.pause();
-                this.updateButton();
             }
 
-            updateButton() {
-                const icon = this.video.paused ? 'play' : 'pause';
-                this.playPauseBtn.innerHTML = `<img src="${icon === 'play' ? 
-                    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB5UlEQVR4nO2ZUU7DMAyG/3ZxAS7AKXoB4AIcgRNwBE7ACbgAR+ACbEhrp7VJmqRJ5f4nUaR1bfL5t5M4LgAAAAAAAAAAAAAAAADQjFQvLkktL0k9b5J6eUvq5Yf0e0nqZQ3t6PvV8pXUy7d3gL9JvXwGd/Sd1Mubd4C/pN+3V4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49/4B7jZgVUZzQlsAAAAASUVORK5CYII=' : 
-                    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAABvElEQVR4nO2ZQU7CUBSG/1u0C1yAS3QCLsAJOEFX4ARcgBNwAk7ACbihlLQlTdKkTVr5P0mUtm3y3XtvX0sBAAAAAAAAAAAAAADQjFRPL0g9L0k9b5J6eUvq5Yf0e0nqZQ3t6PvV8pXUy7d3gH9JvXwFd/Sd1Mubd4D/pN+3V4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49x7gbgNWZTQntAUAAAAASUVORK5CYII='}">`;
+            updatePlayState() {
+                this.playOverlay.style.display = this.video.paused ? 'block' : 'none';
+                this.playBtn.innerHTML = this.video.paused ? 
+                    '<img src="play-icon-base64">' : 
+                    '<img src="pause-icon-base64">';
             }
 
             updateProgress() {
-                this.progress.value = this.video.currentTime;
+                const progress = (this.video.currentTime / this.video.duration) * 100;
+                this.progressFilled.style.width = `${progress}%`;
                 this.timeDisplay.textContent = 
                     `${this.formatTime(this.video.currentTime)} / ${this.formatTime(this.video.duration)}`;
-            }
-
-            seekTo(value) {
-                this.video.currentTime = value;
             }
 
             formatTime(seconds) {
@@ -195,17 +252,17 @@
             new VideoController(video);
         });
 
-        // 移动端触摸控制优化
-        document.querySelectorAll('.video-card').forEach(card => {
+        // 移动端触摸控制
+        document.querySelectorAll('.video-container').forEach(container => {
             let touchStartTime = 0;
             
-            card.addEventListener('touchstart', () => {
+            container.addEventListener('touchstart', () => {
                 touchStartTime = Date.now();
             });
             
-            card.addEventListener('touchend', (e) => {
+            container.addEventListener('touchend', () => {
                 if (Date.now() - touchStartTime < 200) {
-                    const video = card.querySelector('video');
+                    const video = container.querySelector('video');
                     video.paused ? video.play() : video.pause();
                 }
             });
