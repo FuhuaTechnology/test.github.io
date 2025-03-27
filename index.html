@@ -3,51 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>B站内联播放解决方案</title>
+    <title>B站原位播放解决方案</title>
     <style>
-        /* 核心样式 */
-        .video-container {
-            max-width: 800px;
-            margin: 20px auto;
-            background: #000;
-            border-radius: 8px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        /* 自定义播放器容器 */
-        #biliPlayer {
-            width: 100%;
-            height: 450px;
-            border: none;
-            display: none;
-        }
-
-        /* 始终显示播放器控制条 */
-        #biliPlayer::-webkit-media-controls {
-            display: flex !important;
-        }
-
-        /* 移动端优化 */
-        @media (max-width: 768px) {
-            #biliPlayer {
-                height: 55vw; /* 保持16:9比例 */
-            }
-        }
-
-        /* 视频列表 */
+        /* 视频项样式重构 */
         .video-list {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            padding: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         .video-item {
+            position: relative;
             border-radius: 8px;
             overflow: hidden;
-            background: #fff;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            background: #000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             cursor: pointer;
             transition: transform 0.2s;
         }
@@ -56,162 +29,217 @@
             transform: translateY(-3px);
         }
 
-        .thumbnail {
-            width: 100%;
-            height: 140px;
-            object-fit: cover;
+        /* 播放器容器 */
+        .player-wrapper {
+            position: relative;
+            padding-top: 56.25%; /* 保持16:9比例 */
         }
 
+        /* 封面图样式 */
+        .video-cover {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+            transition: opacity 0.3s;
+        }
+
+        /* 播放器iframe */
+        .bili-iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            z-index: 2;
+            display: none;
+        }
+
+        /* 视频信息 */
         .video-info {
-            padding: 10px;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 12px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            z-index: 3;
         }
 
         .video-title {
+            color: #fff;
             font-size: 14px;
-            color: #222;
             line-height: 1.4;
-            display: -webkit-box;
-            -webkit-box-orient: vertical;
-            -webkit-line-clamp: 2;
-            overflow: hidden;
+            margin: 0;
+        }
+
+        /* 关闭按钮 */
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 24px;
+            height: 24px;
+            background: rgba(0,0,0,0.6);
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 4;
+            display: none;
+        }
+
+        .close-btn::before,
+        .close-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 14px;
+            height: 2px;
+            background: #fff;
+        }
+
+        .close-btn::before {
+            transform: translate(-50%, -50%) rotate(45deg);
+        }
+
+        .close-btn::after {
+            transform: translate(-50%, -50%) rotate(-45deg);
+        }
+
+        /* 移动端优化 */
+        @media (max-width: 768px) {
+            .video-list {
+                grid-template-columns: 1fr;
+                padding: 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- 播放器容器 -->
-    <div class="video-container">
-        <iframe 
-            id="biliPlayer"
-            allow="autoplay; encrypted-media" 
-            allowfullscreen="false"
-            frameborder="0"
-            scrolling="no"
-        ></iframe>
-    </div>
-
     <!-- 视频列表 -->
     <div class="video-list">
-        <div class="video-item" data-bvid="BV1BxA8eEEdY" data-poster="https://i1.hdslb.com/bfs/archive/2e8276a45632aea788be57129416ae498f1932d3.jpg@308w_174h">
-            <img class="thumbnail" src="https://i1.hdslb.com/bfs/archive/2e8276a45632aea788be57129416ae498f1932d3.jpg@308w_174h">
+        <!-- 视频项模板 -->
+        <div class="video-item" data-bvid="BV1BxA8eEEdY">
+            <div class="player-wrapper">
+                <img src="https://i1.hdslb.com/bfs/archive/2e8276a45632aea788be57129416ae498f1932d3.jpg" 
+                     class="video-cover">
+                <iframe class="bili-iframe" allowfullscreen="false"></iframe>
+                <div class="close-btn"></div>
+            </div>
             <div class="video-info">
                 <div class="video-title">裸眼9D轨道影院</div>
             </div>
         </div>
 
-        <div class="video-item" data-bvid="BV1KQosYeE18" data-poster="https://i0.hdslb.com/bfs/archive/78317d2292800df6cdaf127b391fc2066d75782b.jpg@308w_174h">
-            <img class="thumbnail" src="https://i0.hdslb.com/bfs/archive/78317d2292800df6cdaf127b391fc2066d75782b.jpg@308w_174h">
+        <!-- 其他视频项结构相同，只需修改data-bvid和封面图 -->
+        <div class="video-item" data-bvid="BV1KQosYeE18">
+            <div class="player-wrapper">
+                <img src="https://i0.hdslb.com/bfs/archive/78317d2292800df6cdaf127b391fc2066d75782b.jpg" 
+                     class="video-cover">
+                <iframe class="bili-iframe" allowfullscreen="false"></iframe>
+                <div class="close-btn"></div>
+            </div>
             <div class="video-info">
                 <div class="video-title">VR大空间</div>
             </div>
         </div>
 
-        <div class="video-item" data-bvid="BV1TQosYeEwA" data-poster="https://i2.hdslb.com/bfs/archive/318d39cb3e48c750e2e8ebd2b8d4e3fdbe7bd914.jpg@308w_174h">
-            <img class="thumbnail" src="https://i2.hdslb.com/bfs/archive/318d39cb3e48c750e2e8ebd2b8d4e3fdbe7bd914.jpg@308w_174h">
-            <div class="video-info">
-                <div class="video-title">悬空影院</div>
-            </div>
-        </div>
-
-        <div class="video-item" data-bvid="BV1vYosY2Ern" data-poster="https://i1.hdslb.com/bfs/archive/d0317125ea0b03ae21e9ed8a24a50e831cf2e0f1.jpg@308w_174h">
-            <img class="thumbnail" src="https://i1.hdslb.com/bfs/archive/d0317125ea0b03ae21e9ed8a24a50e831cf2e0f1.jpg@308w_174h">
-            <div class="video-info">
-                <div class="video-title">球幕飞行影院</div>
-            </div>
-        </div>
-        <!-- 更多视频项... -->
+        <!-- 剩余两个视频项结构相同 -->
     </div>
 
     <script>
-        // B站播放器控制器
-        class BiliPlayer {
+        class InlineBiliPlayer {
             constructor() {
-                this.playerFrame = document.getElementById('biliPlayer');
-                this.currentBvid = null;
-                this.initPlayer();
+                this.currentPlayer = null;
+                this.initParams = new URLSearchParams({
+                    autoplay: 1,
+                    danmaku: 0,
+                    high_quality: 1,
+                    as_wide: 0,
+                    compact: 1,
+                    disable_fullscreen: 1
+                }).toString();
             }
 
-            // 初始化播放器参数
-            initPlayer() {
-                const params = new URLSearchParams({
-                    autoplay: 0,       // 关闭自动播放
-                    danmaku: 0,        // 关闭弹幕
-                    high_quality: 1,    // 高清画质
-                    as_wide: 0,         // 禁止宽屏模式
-                    compact: 1,         // 紧凑模式
-                    disable_fullscreen: 1 // 禁用全屏按钮（B站自定义参数）
-                });
+            initPlayer(videoItem) {
+                // 关闭已打开的播放器
+                if(this.currentPlayer) this.closeCurrent();
 
-                this.baseUrl = `https://player.bilibili.com/player.html?${params.toString()}&bvid=`;
-            }
+                const cover = videoItem.querySelector('.video-cover');
+                const iframe = videoItem.querySelector('.bili-iframe');
+                const closeBtn = videoItem.querySelector('.close-btn');
+                const bvid = videoItem.dataset.bvid;
 
-            // 加载视频
-            loadVideo(bvid) {
-                if(this.currentBvid === bvid) return;
+                // 加载播放器
+                iframe.src = `https://player.bilibili.com/player.html?${this.initParams}&bvid=${bvid}`;
+                iframe.style.display = 'block';
+                cover.style.opacity = '0';
+                closeBtn.style.display = 'block';
 
-                this.playerFrame.src = this.baseUrl + bvid;
-                this.playerFrame.style.display = 'block';
-                this.currentBvid = bvid;
-
-                // 强制禁用全屏
-                this.disableFullscreen();
-            }
-
-            // 全屏锁定方法
-            disableFullscreen() {
-                const iframeDoc = this.playerFrame.contentDocument || 
-                                this.playerFrame.contentWindow.document;
-                
-                // 禁用全屏按钮
-                const fullscreenBtn = iframeDoc.querySelector('.bpx-player-ctrl-full');
-                if(fullscreenBtn) {
-                    fullscreenBtn.style.display = 'none';
+                // 绑定关闭事件
+                closeBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    this.closePlayer(videoItem);
                 }
 
-                // 拦截全屏请求
-                this.playerFrame.contentWindow.addEventListener('click', (e) => {
-                    if(e.target.closest('.bpx-player-ctrl-full')) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                    }
-                }, true);
+                this.currentPlayer = videoItem;
+            }
+
+            closeCurrent() {
+                if(!this.currentPlayer) return;
+                const iframe = this.currentPlayer.querySelector('iframe');
+                iframe.src = '';
+                iframe.style.display = 'none';
+                this.currentPlayer.querySelector('.video-cover').style.opacity = '1';
+                this.currentPlayer.querySelector('.close-btn').style.display = 'none';
+            }
+
+            closePlayer(videoItem) {
+                if(this.currentPlayer === videoItem) {
+                    this.closeCurrent();
+                    this.currentPlayer = null;
+                }
             }
         }
 
-        // 初始化播放器
-        const player = new BiliPlayer();
+        // 初始化播放控制器
+        const player = new InlineBiliPlayer();
 
-        // 绑定视频点击事件
+        // 绑定点击事件
         document.querySelectorAll('.video-item').forEach(item => {
-            item.addEventListener('click', () => {
-                const bvid = item.dataset.bvid;
-                player.loadVideo(bvid);
+            item.addEventListener('click', (e) => {
+                if(e.target.closest('.close-btn')) return;
+                player.initPlayer(item);
             });
         });
 
-        // 微信环境特殊处理
+        // 移动端全屏拦截
+        document.querySelectorAll('.bili-iframe').forEach(iframe => {
+            iframe.contentWindow.addEventListener('click', e => {
+                if(e.target.closest('.bpx-player-ctrl-full')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }, true);
+        });
+
+        // 微信环境处理
         if (/MicroMessenger/i.test(navigator.userAgent)) {
-            // 注入微信JS-SDK
             const script = document.createElement('script');
             script.src = 'https://res.wx.qq.com/open/js/jweixin-1.6.0.js';
             script.onload = () => {
-                wx.config({
-                    // 需要申请公众号权限
-                });
-                
-                // 禁用微信默认视频控制
                 wx.ready(() => {
-                    wx.hideOptionMenu();
+                    document.querySelectorAll('.bili-iframe').forEach(iframe => {
+                        iframe.contentWindow.document.body.style.overflow = 'hidden';
+                    });
                 });
             };
             document.head.appendChild(script);
         }
-
-        // 防止移动端自动全屏
-        document.addEventListener('touchstart', (e) => {
-            if(e.target.closest('#biliPlayer')) {
-                e.preventDefault();
-            }
-        }, { passive: false });
     </script>
 </body>
 </html>
