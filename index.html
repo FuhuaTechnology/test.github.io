@@ -2,62 +2,89 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <!-- 移动端适配 -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <!-- 微信环境优化 -->
-    <meta name="referrer" content="never">
-    <title>热门产品视频库</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>多视频交互播放系统</title>
     <style>
-        /* 基础样式重置 */
+        /* 全局基础样式 */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background: #f5f5f5;
         }
 
-        /* 标题样式 */
-        .header {
-            text-align: center;
-            padding: 20px 0;
-            background: #fff;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        /* 视频网格布局 */
-        .video-grid {
+        /* 视频列表容器 */
+        .video-gallery {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 15px;
             padding: 15px;
             max-width: 1200px;
             margin: 0 auto;
         }
 
-        /* 单个视频卡片 */
+        /* 视频卡片样式 */
         .video-card {
             background: #fff;
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
             transition: transform 0.2s;
-            cursor: pointer;
         }
 
-        .video-card:hover {
-            transform: translateY(-3px);
+        /* 视频容器 */
+        .video-container {
+            position: relative;
+            padding-top: 56.25%; /* 16:9 比例 */
         }
 
-        /* 视频封面图 */
-        .video-thumb {
+        /* 视频元素 */
+        video {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            height: 180px;
+            height: 100%;
             object-fit: cover;
-            border-bottom: 1px solid #eee;
+            background: #000;
+        }
+
+        /* 控制条样式 */
+        .controls {
+            padding: 12px;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            transform: translateY(100%);
+            transition: transform 0.3s;
+        }
+
+        .video-card:hover .controls {
+            transform: translateY(0);
+        }
+
+        /* 控制按钮 */
+        .control-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            padding: 6px;
+        }
+
+        .control-btn img {
+            width: 100%;
+            height: 100%;
+            filter: invert(1);
         }
 
         /* 视频标题 */
@@ -65,102 +92,123 @@
             padding: 12px;
             font-size: 14px;
             color: #333;
-            line-height: 1.4;
+            font-weight: 500;
             text-align: center;
         }
 
         /* 移动端优化 */
-        @media (max-width: 480px) {
-            .video-grid {
+        @media (max-width: 768px) {
+            .video-gallery {
                 grid-template-columns: 1fr;
-                padding: 10px;
             }
             
-            .video-thumb {
-                height: 160px;
+            .controls {
+                transform: translateY(0);
+                background: rgba(0,0,0,0.7);
+            }
+            
+            .control-btn {
+                width: 32px;
+                height: 32px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>产品视频库</h1>
-        <p style="color:#666;margin-top:8px;">点击立即观看</p>
-    </div>
-
-    <div class="video-grid">
-        <!-- 视频项1 -->
-        <div class="video-card" onclick="playVideo('BV1BxA8eEEdY')">
-            <img 
-                src="https://i1.hdslb.com/bfs/archive/2e8276a45632aea788be57129416ae498f1932d3.jpg@308w_174h" 
-                class="video-thumb"
-                alt="裸眼9D轨道影院"
-            >
-            <div class="video-title">裸眼9D轨道影院</div>
-        </div>
-
-        <!-- 视频项2 -->
-        <div class="video-card" onclick="playVideo('BV1KQosYeE18')">
-            <img 
-                src="https://i0.hdslb.com/bfs/archive/78317d2292800df6cdaf127b391fc2066d75782b.jpg@308w_174h" 
-                class="video-thumb"
-                alt="VR大空间"
-            >
-            <div class="video-title">VR大空间</div>
-        </div>
-        <!-- 视频项3 -->
-        <div class="video-card" onclick="playVideo('BV1TQosYeEwA')">
-            <img 
-                src="https://i2.hdslb.com/bfs/archive/318d39cb3e48c750e2e8ebd2b8d4e3fdbe7bd914.jpg@308w_174h" 
-                class="video-thumb"
-                alt="悬空影院"
-            >
-            <div class="video-title">悬空影院</div>
-        </div>
-        <!-- 视频项4 -->
-        <div class="video-card" onclick="playVideo('BV1vYosY2Ern')">
-            <img 
-                src="https://i1.hdslb.com/bfs/archive/d0317125ea0b03ae21e9ed8a24a50e831cf2e0f1.jpg@308w_174h" 
-                class="video-thumb"
-                alt="球幕飞行影院"
-            >
-            <div class="video-title">球幕飞行影院</div>
+    <div class="video-gallery">
+        <!-- 视频项模板 -->
+        <div class="video-card">
+            <div class="video-container">
+                <video preload="metadata" poster="https://i1.hdslb.com/bfs/archive/2e8276a45632aea788be57129416ae498f1932d3.jpg@308w_174h">
+                    <source src="https://www.bilibili.com/video/BV1BxA8eEEdY/" type="video/mp4">
+                </video>
+                <div class="controls">
+                    <button class="control-btn play-pause">
+                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB5UlEQVR4nO2ZUU7DMAyG/3ZxAS7AKXoB4AIcgRNwBE7ACbgAR+ACbEhrp7VJmqRJ5f4nUaR1bfL5t5M4LgAAAAAAAAAAAAAAAADQjFQvLkktL0k9b5J6eUvq5Yf0e0nqZQ3t6PvV8pXUy7d3gL9JvXwGd/Sd1Mubd4C/pN+3V4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49/4B7jZgVUZzQlsAAAAASUVORK5CYII=">
+                    </button>
+                    <input type="range" class="progress" value="0" min="0" max="100" step="0.1">
+                    <span class="time">0:00 / 0:00</span>
+                </div>
+            </div>
+            <div class="video-title">产品演示视频1</div>
         </div>
 
         <!-- 更多视频项... -->
     </div>
 
     <script>
-        // 播放器控制函数
-        function playVideo(bvid) {
-            const isWeChat = /MicroMessenger/i.test(navigator.userAgent);
-            const baseUrl = 'https://player.bilibili.com/player.html';
-            
-            // 构造播放地址
-            const params = new URLSearchParams({
-                bvid: bvid,
-                autoplay: 1,      // 自动播放
-                page: 1,         // 分P播放
-                high_quality: 1   // 最高画质
-            });
+        // 播放器控制器
+        class VideoController {
+            constructor(videoElement) {
+                this.video = videoElement;
+                this.playPauseBtn = videoElement.closest('.video-card').querySelector('.play-pause');
+                this.progress = videoElement.closest('.video-card').querySelector('.progress');
+                this.timeDisplay = videoElement.closest('.video-card').querySelector('.time');
+                
+                this.init();
+            }
 
-            const playerUrl = `${baseUrl}?${params}`;
+            init() {
+                // 绑定事件
+                this.playPauseBtn.addEventListener('click', () => this.togglePlay());
+                this.video.addEventListener('timeupdate', () => this.updateProgress());
+                this.video.addEventListener('click', () => this.togglePlay());
+                this.progress.addEventListener('input', (e) => this.seekTo(e.target.value));
+                
+                // 初始化进度条
+                this.video.addEventListener('loadedmetadata', () => {
+                    this.progress.max = this.video.duration;
+                });
+            }
 
-            if (isWeChat) {
-                // 微信环境使用全屏跳转
-                window.location.href = `https://b23.tv/${bvid}?from=wechat`;
-            } else {
-                // 其他浏览器直接打开播放器
-                const popup = window.open('', '_blank');
-                popup.location.href = playerUrl;
+            togglePlay() {
+                this.video.paused ? this.video.play() : this.video.pause();
+                this.updateButton();
+            }
+
+            updateButton() {
+                const icon = this.video.paused ? 'play' : 'pause';
+                this.playPauseBtn.innerHTML = `<img src="${icon === 'play' ? 
+                    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB5UlEQVR4nO2ZUU7DMAyG/3ZxAS7AKXoB4AIcgRNwBE7ACbgAR+ACbEhrp7VJmqRJ5f4nUaR1bfL5t5M4LgAAAAAAAAAAAAAAAADQjFQvLkktL0k9b5J6eUvq5Yf0e0nqZQ3t6PvV8pXUy7d3gL9JvXwGd/Sd1Mubd4C/pN+3V4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49/4B7jZgVUZzQlsAAAAASUVORK5CYII=' : 
+                    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAABvElEQVR4nO2ZQU7CUBSG/1u0C1yAS3QCLsAJOEFX4ARcgBNwAk7ACbihlLQlTdKkTVr5P0mUtm3y3XtvX0sBAAAAAAAAAAAAAADQjFRPL0g9L0k9b5J6eUvq5Yf0e0nqZQ3t6PvV8pXUy7d3gH9JvXwFd/Sd1Mubd4D/pN+3V4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49xbw7i3g3VvAu7eAd28B794C3r0FvHsLePcW8O4t4N1bwLu3gHdvAe/eAt69Bbx7C3j3FvDuLeDdW8C7t4B3bwHv3gLevQW8ewt49x7gbgNWZTQntAUAAAAASUVORK5CYII='}">`;
+            }
+
+            updateProgress() {
+                this.progress.value = this.video.currentTime;
+                this.timeDisplay.textContent = 
+                    `${this.formatTime(this.video.currentTime)} / ${this.formatTime(this.video.duration)}`;
+            }
+
+            seekTo(value) {
+                this.video.currentTime = value;
+            }
+
+            formatTime(seconds) {
+                const min = Math.floor(seconds / 60);
+                const sec = Math.floor(seconds % 60);
+                return `${min}:${sec.toString().padStart(2, '0')}`;
             }
         }
 
-        // 图片加载失败处理
-        document.querySelectorAll('.video-thumb').forEach(img => {
-            img.onerror = function() {
-                this.src = 'https://placehold.co/600x400?text=封面加载失败';
-            }
+        // 初始化所有播放器
+        document.querySelectorAll('video').forEach(video => {
+            new VideoController(video);
+        });
+
+        // 移动端触摸控制优化
+        document.querySelectorAll('.video-card').forEach(card => {
+            let touchStartTime = 0;
+            
+            card.addEventListener('touchstart', () => {
+                touchStartTime = Date.now();
+            });
+            
+            card.addEventListener('touchend', (e) => {
+                if (Date.now() - touchStartTime < 200) {
+                    const video = card.querySelector('video');
+                    video.paused ? video.play() : video.pause();
+                }
+            });
         });
     </script>
 </body>
