@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>B站视频合集</title>
+    <title>B站视频内联播放</title>
     <style>
         * {
             margin: 0;
@@ -12,26 +12,23 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
-        body {
-            background: #f5f5f5;
-        }
-
-        /* 视频网格布局 */
-        .video-gallery {
+        /* 视频列表布局 */
+        .video-list {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 15px;
-            padding: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
             max-width: 1200px;
             margin: 0 auto;
         }
 
-        /* 视频卡片样式 */
+        /* 视频卡片 */
         .video-card {
             background: #fff;
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            cursor: pointer;
             transition: transform 0.2s;
         }
 
@@ -40,13 +37,11 @@
         }
 
         /* 封面容器 */
-        .cover-container {
+        .card-cover {
             position: relative;
             padding-top: 56.25%;
-            cursor: pointer;
         }
 
-        /* 封面图片 */
         .cover-image {
             position: absolute;
             top: 0;
@@ -56,32 +51,28 @@
             object-fit: cover;
         }
 
-        /* 播放按钮 */
-        .play-icon {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 60px;
-            height: 60px;
-            background: rgba(0,0,0,0.6);
-            border-radius: 50%;
-            opacity: 0.9;
+        /* 内联播放器容器 */
+        .inline-player {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%;
+            margin: 20px 0;
+            display: none;
         }
 
-        .play-icon::after {
-            content: '';
+        #playerFrame {
             position: absolute;
-            left: 52%;
-            top: 50%;
-            transform: translate(-40%, -50%);
-            border-style: solid;
-            border-width: 12px 0 12px 20px;
-            border-color: transparent transparent transparent #fff;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 8px;
+            overflow: hidden;
         }
 
         /* 视频信息 */
-        .video-info {
+        .card-info {
             padding: 12px;
         }
 
@@ -95,135 +86,112 @@
             overflow: hidden;
         }
 
-        /* 播放器容器 */
-        .player-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.9);
-            z-index: 999;
-            display: none;
-        }
-
         /* 移动端优化 */
         @media (max-width: 768px) {
-            .video-gallery {
+            .video-list {
                 grid-template-columns: 1fr;
             }
             
-            .play-icon {
-                width: 50px;
-                height: 50px;
+            .inline-player {
+                margin: 10px 0;
             }
         }
     </style>
 </head>
 <body>
+    <!-- 内联播放器 -->
+    <div class="inline-player" id="playerContainer">
+        <iframe id="playerFrame" allowfullscreen allow="autoplay"></iframe>
+    </div>
+
     <!-- 视频列表 -->
-    <div class="video-gallery">
+    <div class="video-list">
         <!-- 视频项1 -->
         <div class="video-card" data-bvid="BV1BxA8eEEdY">
-            <div class="cover-container">
+            <div class="card-cover">
                 <img src="https://i1.hdslb.com/bfs/archive/2e8276a45632aea788be57129416ae498f1932d3.jpg@308w_174h" class="cover-image">
-                <div class="play-icon"></div>
             </div>
-            <div class="video-info">
+            <div class="card-info">
                 <div class="video-title">智能投影仪演示视频</div>
             </div>
         </div>
 
         <!-- 视频项2 -->
         <div class="video-card" data-bvid="BV1Bx411x7xy">
-            <div class="cover-container">
+            <div class="card-cover">
                 <img src="//i0.hdslb.com/bfs/archive/封面图2.jpg" class="cover-image">
-                <div class="play-icon"></div>
             </div>
-            <div class="video-info">
+            <div class="card-info">
                 <div class="video-title">VR大空间体验视频</div>
             </div>
         </div>
     </div>
 
-    <!-- 播放器容器 -->
-    <div class="player-container" id="playerContainer">
-        <iframe 
-            id="biliPlayer"
-            allowfullscreen="true"
-            frameborder="0"
-            scrolling="no"
-            style="width:100%;height:100%;"
-        ></iframe>
-    </div>
-
     <script>
-        // B站播放器控制器
         class BiliPlayer {
             constructor() {
                 this.container = document.getElementById('playerContainer');
-                this.iframe = document.getElementById('biliPlayer');
+                this.iframe = document.getElementById('playerFrame');
+                this.currentBvid = null;
             }
 
-            // 初始化播放器
-            init(bvid) {
+            // 加载视频
+            load(bvid) {
+                if(this.currentBvid === bvid) return;
+
                 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-                const playerUrl = `https://player.bilibili.com/player.html?bvid=${bvid}&autoplay=1&page=1${
-                    isMobile ? '&high_quality=1' : ''
-                }`;
+                const playerUrl = `https://player.bilibili.com/player.html?
+                    bvid=${bvid}&
+                    page=1&
+                    high_quality=1&
+                    autoplay=1&
+                    danmaku=0`.replace(/\s+/g, '');
 
                 this.iframe.src = playerUrl;
                 this.container.style.display = 'block';
+                this.currentBvid = bvid;
 
-                // 微信环境处理
-                if (/MicroMessenger/i.test(navigator.userAgent)) {
-                    this.weixinFallback(playerUrl);
-                }
+                // 调整播放器位置
+                this.scrollToPlayer();
             }
 
-            // 微信环境降级方案
-            weixinFallback(url) {
-                const ua = navigator.userAgent.toLowerCase();
-                const isIOS = /iphone|ipad|ipod/.test(ua);
-                
-                if(isIOS) {
-                    window.location.href = `bilibili://video/${this.bvid}`;
-                    setTimeout(() => {
-                        window.location.href = url;
-                    }, 2000);
-                } else {
-                    window.location.href = url;
-                }
-            }
+            // 平滑滚动到播放器
+            scrollToPlayer() {
+                const yOffset = -60; // 留出顶部空间
+                const element = this.container;
+                const y = element.getBoundingClientRect().top + 
+                         window.pageYOffset + yOffset;
 
-            close() {
-                this.container.style.display = 'none';
-                this.iframe.src = '';
+                window.scrollTo({top: y, behavior: 'smooth'});
             }
         }
 
-        // 初始化播放器实例
+        // 初始化播放器
         const player = new BiliPlayer();
 
         // 绑定点击事件
         document.querySelectorAll('.video-card').forEach(card => {
             card.addEventListener('click', () => {
                 const bvid = card.dataset.bvid;
-                player.init(bvid);
+                player.load(bvid);
             });
-        });
-
-        // 关闭播放器
-        document.getElementById('playerContainer').addEventListener('click', () => {
-            player.close();
         });
 
         // 微信自动播放处理
         if(/MicroMessenger/i.test(navigator.userAgent)) {
-            window.addEventListener('WeixinJSBridgeReady', () => {
-                document.querySelectorAll('video').forEach(v => v.play());
+            document.addEventListener('WeixinJSBridgeReady', () => {
+                const iframe = document.getElementById('playerFrame');
+                iframe.contentWindow.postMessage('play', '*');
             }, false);
         }
+
+        // 自适应高度
+        window.addEventListener('message', e => {
+            if(e.data && e.data.event === 'biliPlayerSize') {
+                const playerFrame = document.getElementById('playerFrame');
+                playerFrame.style.height = e.data.height + 'px';
+            }
+        });
     </script>
 </body>
 </html>
