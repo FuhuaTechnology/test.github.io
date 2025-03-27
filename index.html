@@ -2,78 +2,68 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>B站视频内联播放</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B站内联播放解决方案</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        }
-
-        /* 视频列表布局 */
-        .video-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            padding: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        /* 视频卡片 */
-        .video-card {
-            background: #fff;
+        /* 核心样式 */
+        .video-container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: #000;
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        /* 自定义播放器容器 */
+        #biliPlayer {
+            width: 100%;
+            height: 450px;
+            border: none;
+            display: none;
+        }
+
+        /* 始终显示播放器控制条 */
+        #biliPlayer::-webkit-media-controls {
+            display: flex !important;
+        }
+
+        /* 移动端优化 */
+        @media (max-width: 768px) {
+            #biliPlayer {
+                height: 55vw; /* 保持16:9比例 */
+            }
+        }
+
+        /* 视频列表 */
+        .video-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            padding: 15px;
+        }
+
+        .video-item {
+            border-radius: 8px;
+            overflow: hidden;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             cursor: pointer;
             transition: transform 0.2s;
         }
 
-        .video-card:hover {
+        .video-item:hover {
             transform: translateY(-3px);
         }
 
-        /* 封面容器 */
-        .card-cover {
-            position: relative;
-            padding-top: 56.25%;
-        }
-
-        .cover-image {
-            position: absolute;
-            top: 0;
-            left: 0;
+        .thumbnail {
             width: 100%;
-            height: 100%;
+            height: 140px;
             object-fit: cover;
         }
 
-        /* 内联播放器容器 */
-        .inline-player {
-            position: relative;
-            width: 100%;
-            padding-top: 56.25%;
-            margin: 20px 0;
-            display: none;
-        }
-
-        #playerFrame {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        /* 视频信息 */
-        .card-info {
-            padding: 12px;
+        .video-info {
+            padding: 10px;
         }
 
         .video-title {
@@ -85,113 +75,128 @@
             -webkit-line-clamp: 2;
             overflow: hidden;
         }
-
-        /* 移动端优化 */
-        @media (max-width: 768px) {
-            .video-list {
-                grid-template-columns: 1fr;
-            }
-            
-            .inline-player {
-                margin: 10px 0;
-            }
-        }
     </style>
 </head>
 <body>
-    <!-- 内联播放器 -->
-    <div class="inline-player" id="playerContainer">
-        <iframe id="playerFrame" allowfullscreen allow="autoplay"></iframe>
+    <!-- 播放器容器 -->
+    <div class="video-container">
+        <iframe 
+            id="biliPlayer"
+            allow="autoplay; encrypted-media" 
+            allowfullscreen="false"
+            frameborder="0"
+            scrolling="no"
+        ></iframe>
     </div>
 
     <!-- 视频列表 -->
     <div class="video-list">
-        <!-- 视频项1 -->
-        <div class="video-card" data-bvid="BV1BxA8eEEdY">
-            <div class="card-cover">
-                <img src="https://i1.hdslb.com/bfs/archive/2e8276a45632aea788be57129416ae498f1932d3.jpg@308w_174h" class="cover-image">
+        <div class="video-item" data-bvid="BV1BxA8eEEdY" data-poster="//i0.hdslb.com/bfs/archive/封面1.jpg">
+            <img class="thumbnail" src="//i0.hdslb.com/bfs/archive/封面1.jpg">
+            <div class="video-info">
+                <div class="video-title">产品演示视频1</div>
             </div>
-            <div class="card-info">
-                <div class="video-title">智能投影仪演示视频</div>
-            </div>
-        </div>
 
-        <!-- 视频项2 -->
-        <div class="video-card" data-bvid="BV1Bx411x7xy">
-            <div class="card-cover">
-                <img src="//i0.hdslb.com/bfs/archive/封面图2.jpg" class="cover-image">
-            </div>
-            <div class="card-info">
-                <div class="video-title">VR大空间体验视频</div>
+<div class="video-item" data-bvid="BV1KQosYeE18" data-poster="//i0.hdslb.com/bfs/archive/封面1.jpg">
+            <img class="thumbnail" src="//i0.hdslb.com/bfs/archive/封面1.jpg">
+            <div class="video-info">
+                <div class="video-title">产品演示视频2</div>
             </div>
         </div>
+        <!-- 更多视频项... -->
     </div>
 
     <script>
+        // B站播放器控制器
         class BiliPlayer {
             constructor() {
-                this.container = document.getElementById('playerContainer');
-                this.iframe = document.getElementById('playerFrame');
+                this.playerFrame = document.getElementById('biliPlayer');
                 this.currentBvid = null;
+                this.initPlayer();
+            }
+
+            // 初始化播放器参数
+            initPlayer() {
+                const params = new URLSearchParams({
+                    autoplay: 0,       // 关闭自动播放
+                    danmaku: 0,        // 关闭弹幕
+                    high_quality: 1,    // 高清画质
+                    as_wide: 0,         // 禁止宽屏模式
+                    compact: 1,         // 紧凑模式
+                    disable_fullscreen: 1 // 禁用全屏按钮（B站自定义参数）
+                });
+
+                this.baseUrl = `https://player.bilibili.com/player.html?${params.toString()}&bvid=`;
             }
 
             // 加载视频
-            load(bvid) {
+            loadVideo(bvid) {
                 if(this.currentBvid === bvid) return;
 
-                const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-                const playerUrl = `https://player.bilibili.com/player.html?
-                    bvid=${bvid}&
-                    page=1&
-                    high_quality=1&
-                    autoplay=1&
-                    danmaku=0`.replace(/\s+/g, '');
-
-                this.iframe.src = playerUrl;
-                this.container.style.display = 'block';
+                this.playerFrame.src = this.baseUrl + bvid;
+                this.playerFrame.style.display = 'block';
                 this.currentBvid = bvid;
 
-                // 调整播放器位置
-                this.scrollToPlayer();
+                // 强制禁用全屏
+                this.disableFullscreen();
             }
 
-            // 平滑滚动到播放器
-            scrollToPlayer() {
-                const yOffset = -60; // 留出顶部空间
-                const element = this.container;
-                const y = element.getBoundingClientRect().top + 
-                         window.pageYOffset + yOffset;
+            // 全屏锁定方法
+            disableFullscreen() {
+                const iframeDoc = this.playerFrame.contentDocument || 
+                                this.playerFrame.contentWindow.document;
+                
+                // 禁用全屏按钮
+                const fullscreenBtn = iframeDoc.querySelector('.bpx-player-ctrl-full');
+                if(fullscreenBtn) {
+                    fullscreenBtn.style.display = 'none';
+                }
 
-                window.scrollTo({top: y, behavior: 'smooth'});
+                // 拦截全屏请求
+                this.playerFrame.contentWindow.addEventListener('click', (e) => {
+                    if(e.target.closest('.bpx-player-ctrl-full')) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                }, true);
             }
         }
 
         // 初始化播放器
         const player = new BiliPlayer();
 
-        // 绑定点击事件
-        document.querySelectorAll('.video-card').forEach(card => {
-            card.addEventListener('click', () => {
-                const bvid = card.dataset.bvid;
-                player.load(bvid);
+        // 绑定视频点击事件
+        document.querySelectorAll('.video-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const bvid = item.dataset.bvid;
+                player.loadVideo(bvid);
             });
         });
 
-        // 微信自动播放处理
-        if(/MicroMessenger/i.test(navigator.userAgent)) {
-            document.addEventListener('WeixinJSBridgeReady', () => {
-                const iframe = document.getElementById('playerFrame');
-                iframe.contentWindow.postMessage('play', '*');
-            }, false);
+        // 微信环境特殊处理
+        if (/MicroMessenger/i.test(navigator.userAgent)) {
+            // 注入微信JS-SDK
+            const script = document.createElement('script');
+            script.src = 'https://res.wx.qq.com/open/js/jweixin-1.6.0.js';
+            script.onload = () => {
+                wx.config({
+                    // 需要申请公众号权限
+                });
+                
+                // 禁用微信默认视频控制
+                wx.ready(() => {
+                    wx.hideOptionMenu();
+                });
+            };
+            document.head.appendChild(script);
         }
 
-        // 自适应高度
-        window.addEventListener('message', e => {
-            if(e.data && e.data.event === 'biliPlayerSize') {
-                const playerFrame = document.getElementById('playerFrame');
-                playerFrame.style.height = e.data.height + 'px';
+        // 防止移动端自动全屏
+        document.addEventListener('touchstart', (e) => {
+            if(e.target.closest('#biliPlayer')) {
+                e.preventDefault();
             }
-        });
+        }, { passive: false });
     </script>
 </body>
 </html>
