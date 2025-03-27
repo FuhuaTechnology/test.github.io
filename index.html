@@ -66,7 +66,96 @@
     </div>
 
     <script>
-        // 保持原有JavaScript代码不变
+        // B站播放器控制器
+        class BiliPlayer {
+            constructor() {
+                this.playerFrame = document.getElementById('biliPlayer');
+                this.currentBvid = null;
+                this.initPlayer();
+            }
+
+            // 初始化播放器参数
+            initPlayer() {
+                const params = new URLSearchParams({
+                    autoplay: 0,       // 关闭自动播放
+                    danmaku: 0,        // 关闭弹幕
+                    high_quality: 1,    // 高清画质
+                    as_wide: 0,         // 禁止宽屏模式
+                    compact: 1,         // 紧凑模式
+                    disable_fullscreen: 1 // 禁用全屏按钮（B站自定义参数）
+                });
+
+                this.baseUrl = `https://player.bilibili.com/player.html?${params.toString()}&bvid=`;
+            }
+
+            // 加载视频
+            loadVideo(bvid) {
+                if(this.currentBvid === bvid) return;
+
+                this.playerFrame.src = this.baseUrl + bvid;
+                this.playerFrame.style.display = 'block';
+                this.currentBvid = bvid;
+
+                // 强制禁用全屏
+                this.disableFullscreen();
+            }
+
+            // 全屏锁定方法
+            disableFullscreen() {
+                const iframeDoc = this.playerFrame.contentDocument || 
+                                this.playerFrame.contentWindow.document;
+                
+                // 禁用全屏按钮
+                const fullscreenBtn = iframeDoc.querySelector('.bpx-player-ctrl-full');
+                if(fullscreenBtn) {
+                    fullscreenBtn.style.display = 'none';
+                }
+
+                // 拦截全屏请求
+                this.playerFrame.contentWindow.addEventListener('click', (e) => {
+                    if(e.target.closest('.bpx-player-ctrl-full')) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                }, true);
+            }
+        }
+
+        // 初始化播放器
+        const player = new BiliPlayer();
+
+        // 绑定视频点击事件
+        document.querySelectorAll('.video-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const bvid = item.dataset.bvid;
+                player.loadVideo(bvid);
+            });
+        });
+
+        // 微信环境特殊处理
+        if (/MicroMessenger/i.test(navigator.userAgent)) {
+            // 注入微信JS-SDK
+            const script = document.createElement('script');
+            script.src = 'https://res.wx.qq.com/open/js/jweixin-1.6.0.js';
+            script.onload = () => {
+                wx.config({
+                    // 需要申请公众号权限
+                });
+                
+                // 禁用微信默认视频控制
+                wx.ready(() => {
+                    wx.hideOptionMenu();
+                });
+            };
+            document.head.appendChild(script);
+        }
+
+        // 防止移动端自动全屏
+        document.addEventListener('touchstart', (e) => {
+            if(e.target.closest('#biliPlayer')) {
+                e.preventDefault();
+            }
+        }, { passive: false });
     </script>
 </body>
 </html>
