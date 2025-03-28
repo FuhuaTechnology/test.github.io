@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>富华科技·产品展示</title>
+    <title>B站原位播放解决方案</title>
     <style>
 /* 新增头部样式 */
     .page-header {
@@ -405,6 +405,150 @@
                 padding: 10px;
             }
         }
+ /* 返回顶部按钮 */
+    .back-to-top {
+        position: fixed;
+        bottom: 40px;
+        right: 30px;
+        width: 50px;
+        height: 50px;
+        border: none;
+        border-radius: 12px;
+        background: linear-gradient(135deg, 
+            rgba(64, 201, 255, 0.9) 0%, 
+            rgba(96, 74, 255, 0.9) 100%);
+        box-shadow: 0 4px 20px rgba(64, 156, 255, 0.3);
+        cursor: pointer;
+        opacity: 0;
+        transform: translateY(100px);
+        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        z-index: 9999;
+    }
+
+    .back-to-top.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .arrow-icon {
+        width: 24px;
+        height: 24px;
+        fill: #fff;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        transform: translateY(2px);
+    }
+
+    /* 悬停动画 */
+    .back-to-top:hover {
+        transform: translateY(-5px) scale(1.1);
+        box-shadow: 0 8px 30px rgba(64, 156, 255, 0.5);
+    }
+
+    /* 移动端优化 */
+    @media (max-width: 768px) {
+        .back-to-top {
+            bottom: 20px;
+            right: 15px;
+            width: 44px;
+            height: 44px;
+        }
+        
+        .arrow-icon {
+            width: 20px;
+            height: 20px;
+        }
+    }
+
+.back{
+margin-top: 4px;
+}
+/* 核心容器 */
+.product-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+/* 网格布局 (始终两列) */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.8rem; /* 更紧凑的间距 */
+}
+
+/* 正方形卡片 */
+.product-card {
+  position: relative;
+  width: 100%;
+  padding-top: 100%; /* 1:1比例 */
+  background: #0d1219;
+  border: 1px solid rgba(64, 156, 255, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* 内容容器 */
+.card-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0.8rem;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 图片区域 (60%高度) */
+.product-image {
+  height: 60%;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 文字区域 (40%高度) */
+.product-info {
+  flex: 1;
+  padding-top: 0.6rem;
+}
+
+.product-title {
+  color: #40c9ff;
+  font-size: 0.9rem; /* 移动端优化字号 */
+  margin: 0 0 0.4rem;
+  line-height: 1.2;
+}
+
+.product-desc {
+  color: #a0c3ff;
+  font-size: 0.75rem;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* 移动端显示两行 */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 超小屏幕优化 */
+@media (max-width: 480px) {
+  .product-grid {
+    gap: 0.5rem;
+  }
+  
+  .card-inner {
+    padding: 0.6rem;
+  }
+  
+  .product-title {
+    font-size: 0.8rem;
+  }
+}
     </style>
 </head>
 <body>
@@ -473,6 +617,95 @@
         
     </div>
 
+<div class="product-container">
+  <div class="product-grid">
+    <!-- 左产品 -->
+    <div class="product-card">
+      <div class="card-inner">
+        <div class="product-image">
+          <img src="product-left.jpg" alt="全息投影设备">
+        </div>
+        <div class="product-info">
+          <h3 class="product-title">量子全息投影</h3>
+          <p class="product-desc">8K超清｜360°可视｜2000:1对比度｜触控交互</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右产品 -->
+    <div class="product-card">
+      <div class="card-inner">
+        <div class="product-image">
+          <img src="product-right.jpg" alt="体感交互设备">
+        </div>
+        <div class="product-info">
+          <h3 class="product-title">体感交互系统</h3>
+          <p class="product-desc">毫米级精度｜多设备同步｜＜5ms延迟</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 左产品 -->
+    <div class="product-card">
+      <div class="card-inner">
+        <div class="product-image">
+          <img src="product-left.jpg" alt="全息投影设备">
+        </div>
+        <div class="product-info">
+          <h3 class="product-title">量子全息投影</h3>
+          <p class="product-desc">8K超清｜360°可视｜2000:1对比度｜触控交互</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右产品 -->
+    <div class="product-card">
+      <div class="card-inner">
+        <div class="product-image">
+          <img src="product-right.jpg" alt="体感交互设备">
+        </div>
+        <div class="product-info">
+          <h3 class="product-title">体感交互系统</h3>
+          <p class="product-desc">毫米级精度｜多设备同步｜＜5ms延迟</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 左产品 -->
+    <div class="product-card">
+      <div class="card-inner">
+        <div class="product-image">
+          <img src="product-left.jpg" alt="全息投影设备">
+        </div>
+        <div class="product-info">
+          <h3 class="product-title">量子全息投影</h3>
+          <p class="product-desc">8K超清｜360°可视｜2000:1对比度｜触控交互</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右产品 -->
+    <div class="product-card">
+      <div class="card-inner">
+        <div class="product-image">
+          <img src="product-right.jpg" alt="体感交互设备">
+        </div>
+        <div class="product-info">
+          <h3 class="product-title">体感交互系统</h3>
+          <p class="product-desc">毫米级精度｜多设备同步｜＜5ms延迟</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<button class="back-to-top" title="返回顶部">
+<h4 class="back">返回顶部</h4>
+    <svg class="arrow-icon" viewBox="0 0 24 24">
+        <path d="M12 4l-8 8h6v8h4v-8h6z"/>
+    </svg>
+</button>
     <script>
         class InlineBiliPlayer {
             constructor() {
@@ -562,6 +795,19 @@
             };
             document.head.appendChild(script);
         }
+// 显示/隐藏按钮
+    window.addEventListener('scroll', () => {
+        const btn = document.querySelector('.back-to-top');
+        btn.classList.toggle('show', window.scrollY > 200);
+    });
+
+    // 平滑滚动
+    document.querySelector('.back-to-top').addEventListener('click', () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
     </script>
 </body>
 </html>
