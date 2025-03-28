@@ -462,28 +462,27 @@
 .back{
 margin-top: 4px;
 }
-/* 核心容器 */
+//* 优化产品容器 */
 .product-container {
   max-width: 1200px;
   margin: 2rem auto;
   padding: 0 1rem;
 }
 
-/* 网格布局 (始终两列) */
 .product-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1.2rem; /* 增加间距 */
+  gap: 1.5rem;
 }
 
 /* 正方形卡片 */
 .product-card {
   position: relative;
   width: 100%;
-  padding-top: 120%; /* 调整为更合适的比例 */
+  padding-top: 100%; /* 1:1比例 */
   background: #0d1219;
-  border: 1px solid rgba(64, 156, 255, 0.1);
-  border-radius: 12px; /* 增大圆角 */
+  border: 1px solid rgba(64, 156, 255, 0.15);
+  border-radius: 12px;
   overflow: hidden;
 }
 
@@ -501,128 +500,97 @@ margin-top: 4px;
 
 /* 图片区域优化 */
 .product-image {
-  height: 55%; /* 微调图片比例 */
-  border-radius: 8px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60%; /* 固定图片区域高度 */
   overflow: hidden;
-  padding: 6px; /* 增加呼吸空间 */
-  background: rgba(255,255,255,0.05); /* 添加背景层 */
 }
-
 
 .product-image img {
   width: 100%;
   height: 100%;
-  object-fit: contain; /* 改为contain保证完整显示 */
-  object-position: center;
-  transition: transform 0.3s ease;
+  object-fit: cover; /* 图片撑满容器 */
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .product-card:hover .product-image img {
   transform: scale(1.03);
 }
 
-/* 文字区域 (40%高度) */
+/* 文字区域优化 */
 .product-info {
-  flex: 1;
-  padding: 0.8rem 0.5rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 40%; /* 固定文字区域高度 */
+  padding: 1.2rem;
+  background: linear-gradient(transparent 10%, rgba(0,0,0,0.8));
 }
 
 .product-title {
   color: #40c9ff;
-  font-size: 1rem; /* 增大字号 */
-  margin: 0 0 0.6rem;
-  line-height: 1.3;
-  min-height: 2.6em; /* 保证标题区域高度 */
+  font-size: 1.1rem;
+  margin: 0 0 0.8rem;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;  /* 标题最多两行 */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .product-desc {
   color: #a0c3ff;
-  font-size: 0.85rem; /* 增大字号 */
+  font-size: 0.85rem;
   line-height: 1.5;
+  height: 7.5em; /* 固定五行高度 (1.5行高 * 5行) */
   display: -webkit-box;
-  -webkit-line-clamp: 4; /* 增加显示行数 */
+  -webkit-line-clamp: 5;  /* 固定显示五行 */
   -webkit-box-orient: vertical;
   overflow: hidden;
-  flex-grow: 1; /* 允许扩展 */
-  padding: 8px 12px;
-  background: rgba(0,0,0,0.3);
-  border-radius: 6px;
   position: relative;
+  padding-left: 1rem;
 }
 
-/* 超小屏幕优化 */
+/* 添加装饰元素 */
+.product-desc::before {
+  content: '◆';
+  color: #40c9ff;
+  font-size: 0.8em;
+  position: absolute;
+  left: 0;
+  top: 0.2em;
+  text-shadow: 0 0 8px rgba(64, 201, 255, 0.5);
+}
+
+/* 响应式调整 */
 @media (max-width: 768px) {
   .product-grid {
-    gap: 0.8rem;
-  }
-  
-  .product-card {
-    padding-top: 110%;
+    gap: 1rem;
   }
   
   .product-title {
-    font-size: 0.95rem;
+    font-size: 1rem;
+    -webkit-line-clamp: 1;
   }
   
   .product-desc {
     font-size: 0.8rem;
-    -webkit-line-clamp: 3;
+    height: 7em; /* 调整行高 */
+    -webkit-line-clamp: 5;
   }
 }
 
 @media (max-width: 480px) {
   .product-grid {
     grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-  
-  .product-card {
-    padding-top: 100%;
   }
   
   .product-desc {
-    -webkit-line-clamp: 2;
+    font-size: 0.75rem;
+    height: 6.5em;
   }
-}
-
-/* 新增播放提示样式 */
-.play-guide {
-    max-width: 1200px;
-    margin: 20px auto;
-    padding: 0 20px;
-    text-align: center;
-    position: relative;
-}
-
-.guide-text {
-    color: #40c9ff;
-    font-size: 1.2rem;
-    letter-spacing: 2px;
-    background: linear-gradient(90deg, 
-        rgba(64, 201, 255, 0.8) 0%, 
-        rgba(96, 74, 255, 0.8) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    display: inline-flex;
-    align-items: center;
-    padding: 8px 20px;
-    border: 1px solid rgba(64, 156, 255, 0.3);
-    border-radius: 30px;
-    backdrop-filter: blur(4px);
-}
-
-.blink-arrow {
-    animation: arrowBlink 1.2s ease-in-out infinite;
-    margin: 0 10px;
-    font-weight: bold;
-}
-
-@keyframes arrowBlink {
-    0%, 100% { opacity: 0.3; transform: translateY(0); }
-    50% { opacity: 1; transform: translateY(5px); }
 }
 
 /* 新增产品标题样式 */
