@@ -549,6 +549,130 @@ margin-top: 4px;
     font-size: 0.8rem;
   }
 }
+
+/* 新增播放提示样式 */
+.play-guide {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 0 20px;
+    text-align: center;
+    position: relative;
+}
+
+.guide-text {
+    color: #40c9ff;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+    background: linear-gradient(90deg, 
+        rgba(64, 201, 255, 0.8) 0%, 
+        rgba(96, 74, 255, 0.8) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 20px;
+    border: 1px solid rgba(64, 156, 255, 0.3);
+    border-radius: 30px;
+    backdrop-filter: blur(4px);
+}
+
+.blink-arrow {
+    animation: arrowBlink 1.2s ease-in-out infinite;
+    margin: 0 10px;
+    font-weight: bold;
+}
+
+@keyframes arrowBlink {
+    0%, 100% { opacity: 0.3; transform: translateY(0); }
+    50% { opacity: 1; transform: translateY(5px); }
+}
+
+/* 新增产品标题样式 */
+.section-title-wrap {
+    max-width: 1200px;
+    margin: 40px auto 20px;
+    padding: 0 20px;
+    text-align: center;
+}
+
+.section-title {
+    font-size: 1.8rem;
+    color: #e0f3ff;
+    position: relative;
+    display: inline-block;
+    padding: 0 30px;
+}
+
+.section-title span {
+    background: linear-gradient(120deg, #40c9ff 0%, #3d6af9 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.section-title::before,
+.section-title::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 60px;
+    height: 1px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        #40c9ff 50%, 
+        transparent 100%);
+}
+
+.section-title::before {
+    left: -70px;
+}
+
+.section-title::after {
+    right: -70px;
+}
+
+.section-subtitle {
+    color: rgba(160, 195, 255, 0.8);
+    font-size: 1rem;
+    margin-top: 8px;
+    letter-spacing: 1px;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+    .guide-text {
+        font-size: 1rem;
+        padding: 6px 15px;
+    }
+    
+    .section-title {
+        font-size: 1.4rem;
+        padding: 0 20px;
+    }
+    
+    .section-title::before,
+    .section-title::after {
+        width: 40px;
+    }
+    
+    .section-title::before {
+        left: -50px;
+    }
+    
+    .section-title::after {
+        right: -50px;
+    }
+}
+
+@media (max-width: 480px) {
+    .guide-text {
+        font-size: 0.9rem;
+        flex-direction: column;
+    }
+    
+    .blink-arrow {
+        margin: 5px 0;
+    }
+}
     </style>
 </head>
 <body>
@@ -558,6 +682,16 @@ margin-top: 4px;
         <div class="company-name">东莞市富华智能科技有限公司</div>
     </div>
 </header>
+
+<!-- 在header和video-list之间添加播放提示 -->
+<section class="play-guide">
+    <div class="guide-text">
+        <span class="blink-arrow">↓</span>
+        点击下方视频封面立即播放
+        <span class="blink-arrow">↓</span>
+    </div>
+</section>
+
     <!-- 视频列表 -->
     <div class="video-list">
         <!-- 视频项模板 -->
@@ -617,17 +751,25 @@ margin-top: 4px;
         
     </div>
 
+<!-- 在video-list和product-container之间添加产品标题 -->
+<section class="section-title-wrap">
+    <h2 class="section-title">
+        <span>其他产品</span>
+    </h2>
+    <div class="section-subtitle">富华科技专注科普教育、vr体验馆、轨道影院、地台风馆、5D影院、飞行影院、悬空影院等项目一站式服务提供商</div>
+</section>
+
 <div class="product-container">
   <div class="product-grid">
     <!-- 左产品 -->
     <div class="product-card">
       <div class="card-inner">
         <div class="product-image">
-          <img src="product-left.jpg" alt="全息投影设备">
+          <img src="https://www.fhkjvr.com/wp-content/uploads/2021/07/%E5%8F%B0%E9%A3%8E.jpg" alt="台风体验馆">
         </div>
         <div class="product-info">
-          <h3 class="product-title">量子全息投影</h3>
-          <p class="product-desc">8K超清｜360°可视｜2000:1对比度｜触控交互</p>
+          <h3 class="product-title">台风体验馆</h3>
+          <p class="product-desc">采用最先进的多媒体和实景结合技术，在真实的空间里模拟12级台风</p>
         </div>
       </div>
     </div>
@@ -636,11 +778,11 @@ margin-top: 4px;
     <div class="product-card">
       <div class="card-inner">
         <div class="product-image">
-          <img src="product-right.jpg" alt="体感交互设备">
+          <img src="https://www.fhkjvr.com/wp-content/uploads/2021/07/%E5%9C%B0%E9%9C%87.jpg" alt="地震体验馆">
         </div>
         <div class="product-info">
-          <h3 class="product-title">体感交互系统</h3>
-          <p class="product-desc">毫米级精度｜多设备同步｜＜5ms延迟</p>
+          <h3 class="product-title">地震体验馆</h3>
+          <p class="product-desc">增强我国青少年儿童的防震减灾意识，普及地震 科普知识，响应国家防震减灾的号召</p>
         </div>
       </div>
     </div>
@@ -649,11 +791,11 @@ margin-top: 4px;
     <div class="product-card">
       <div class="card-inner">
         <div class="product-image">
-          <img src="product-left.jpg" alt="全息投影设备">
+          <img src="https://www.fhkjvr.com/wp-content/uploads/2021/07/%E7%90%83%E5%B9%95.jpg" alt="球幕影院">
         </div>
         <div class="product-info">
-          <h3 class="product-title">量子全息投影</h3>
-          <p class="product-desc">8K超清｜360°可视｜2000:1对比度｜触控交互</p>
+          <h3 class="product-title">球幕影院</h3>
+          <p class="product-desc">拍摄及放映均采用超广角鱼眼镜头，观众厅为圆顶式结构，银幕呈半球形，观众被包围其中，视银幕如同苍穹。</p>
         </div>
       </div>
     </div>
@@ -662,11 +804,11 @@ margin-top: 4px;
     <div class="product-card">
       <div class="card-inner">
         <div class="product-image">
-          <img src="product-right.jpg" alt="体感交互设备">
+          <img src="https://www.fhkjvr.com/wp-content/uploads/2021/07/5D.jpg" alt="5D动感影院">
         </div>
         <div class="product-info">
-          <h3 class="product-title">体感交互系统</h3>
-          <p class="product-desc">毫米级精度｜多设备同步｜＜5ms延迟</p>
+          <h3 class="product-title">5D动感影院</h3>
+          <p class="product-desc">利用座椅特效和环境特效，以超现实的视觉感受配以特殊的、刺激性的效果同步表现，以仿真的场景与特别的机关设置来模仿实际发生的事件</p>
         </div>
       </div>
     </div>
@@ -675,11 +817,11 @@ margin-top: 4px;
     <div class="product-card">
       <div class="card-inner">
         <div class="product-image">
-          <img src="product-left.jpg" alt="全息投影设备">
+          <img src="https://www.fhkjvr.com/wp-content/uploads/2021/07/7D.jpg" alt="7D互动影院">
         </div>
         <div class="product-info">
-          <h3 class="product-title">量子全息投影</h3>
-          <p class="product-desc">8K超清｜360°可视｜2000:1对比度｜触控交互</p>
+          <h3 class="product-title">7D互动影院</h3>
+          <p class="product-desc">针对每个主题游乐设备，仿真虚拟出该主题的场景与影视情节，并配以特制的特效座椅与环境特效，随着剧情的进行，观众通过手中的仿真枪与屏幕中的三维仿真敌人进行一场紧张激烈的对决，这些将给观众带来从未有过的刺激与快乐</p>
         </div>
       </div>
     </div>
@@ -688,11 +830,11 @@ margin-top: 4px;
     <div class="product-card">
       <div class="card-inner">
         <div class="product-image">
-          <img src="product-right.jpg" alt="体感交互设备">
+          <img src="https://www.fhkjvr.com/wp-content/uploads/2021/07/4D.jpg" alt="4D特效影院">
         </div>
         <div class="product-info">
-          <h3 class="product-title">体感交互系统</h3>
-          <p class="product-desc">毫米级精度｜多设备同步｜＜5ms延迟</p>
+          <h3 class="product-title">4D特效影院</h3>
+          <p class="product-desc">在普通院线的基础上加环境特效、座椅特效等，模拟仿真影片剧情而组成的新型四维空间影视设备，它通过给观众以电影剧情联动的物理刺激来增强临场感的效果</p>
         </div>
       </div>
     </div>
